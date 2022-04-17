@@ -44,7 +44,7 @@ namespace myIoTServer
         NetworkStream _networkStream;
 
         byte _clientID = 0;
-        bool _idHasBeenSet=false;
+        bool _idHasBeenSet = false;
         /// <summary>
         /// 本对象连接着的TCP客户端的ID
         /// </summary>
@@ -81,7 +81,7 @@ namespace myIoTServer
             {
                 _clientName = value;
                 _nameHasBeenSet = true;
-                if(_idHasBeenSet)//名称和ID都获取完毕就可以更新数据库了
+                if (_idHasBeenSet)//名称和ID都获取完毕就可以更新数据库了
                 {
                     Update_DataBase_And_Broadcast_To_Web(true);
                 }
@@ -134,7 +134,7 @@ namespace myIoTServer
         /// </summary>
         static public Dictionary<byte, TcpClientHandler> _handlerDir = new Dictionary<byte, TcpClientHandler>();
 
-        public delegate void SendDataToWebDelegate(string str,bool end);
+        public delegate void SendDataToWebDelegate(string str, bool end);
         public event SendDataToWebDelegate SendDataToWebEvent;
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace myIoTServer
         /// </summary>
         /// <param name="str"></param>
         /// <param name="end"></param>
-        public void SendDataToWeb(string str,bool end)
+        public void SendDataToWeb(string str, bool end)
         {
             SendDataToWebEvent?.Invoke(str, end);
         }
@@ -157,22 +157,22 @@ namespace myIoTServer
         /// </summary>
         void ReceiveDataThread()
         {
-            FrameDivider dv=new FrameDivider();
+            FrameDivider dv = new FrameDivider();
             dv.GetFullFrame += AfterGetFrame;
             byte[] tcpReceiveData = new byte[1024];
-            while (true)//在死循环中不断监听客户端发过来的数据
-            {
-                int count = _networkStream.Read(tcpReceiveData, 0, tcpReceiveData.Length);
-                dv.InputData(tcpReceiveData, 0, count);
-            }
 
-            //try
-            //{
-            //}
-            //catch
-            //{
-            //    Dispose();
-            //}
+            try
+            {
+                while (true)//在死循环中不断监听客户端发过来的数据
+                {
+                    int count = _networkStream.Read(tcpReceiveData, 0, tcpReceiveData.Length);
+                    dv.InputData(tcpReceiveData, 0, count);
+                }
+            }
+            catch
+            {
+                Dispose();
+            }
         }
 
         /// <summary>
