@@ -1,9 +1,12 @@
 using System.Text;
+using WebApplication1;
+
+new MQTTServer();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 WebApplication app = builder.Build();
 
-RequestDelegate re = async (HttpContext context) =>
+RequestDelegate requestDelegate = async (HttpContext context) =>
   {
       HttpResponse re = context.Response;
       re.StatusCode = 200;
@@ -13,6 +16,6 @@ RequestDelegate re = async (HttpContext context) =>
       byte[] helloByte = Encoding.UTF8.GetBytes(hello);
       await body.WriteAsync(helloByte, 0, helloByte.Length);
   };
-app.MapGet("/", re);
+app.MapGet("/", requestDelegate);
 
 app.Run();
