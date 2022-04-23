@@ -12,7 +12,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "http://192.168.31.186:7235;https://192.168.31.186:5284",
+      "applicationUrl": "http://192.168.31.186:7235;https://192.168.31.186:5284;http://127.0.0.1:80;",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_CONTENTROOT": "D:/my_files/workspace/前端/CLI/vue_test/dist",

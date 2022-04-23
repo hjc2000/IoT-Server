@@ -1,12 +1,12 @@
 using System.Text;
-using WebApplication1;
 using WebServerLib;
 
-new MQTTServer();
+new MQTTClient();
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 WebApplication app = builder.Build();
 app.UseWebSockets();
 app.UseRouting();//使用路由中间件
+
 app.Map("/ws", async (HttpContext context) =>
 {
     if (context.WebSockets.IsWebSocketRequest)
@@ -34,6 +34,26 @@ app.Map("/ws", async (HttpContext context) =>
         }
     }
 });
+app.MapPost("/mqtt/auth", async (HttpContext context) =>
+ {
+     //MQTT客户端连接认证
+     int length = 0;
+     if (context.Request.ContentLength != null)
+     {
+         length = (int)context.Request.ContentLength;
+     }
+     byte[] body = new byte[length];
+     await context.Request.Body.ReadAsync(body, 0, body.Length);
+     string str = Encoding.UTF8.GetString(body);
+     Console.WriteLine(str);
+     context.Response.StatusCode = 200;
+ });
+app.MapPost("/mqtt/acl", (HttpContext context) =>
+{
+    //MQTT客户端 Pub 和 Sub 认证
+    context.Response.StatusCode = 200;//不做过多认证，始终允许
+});
+
 app.UseFileServer();//启用文件服务
 app.Run();
 
