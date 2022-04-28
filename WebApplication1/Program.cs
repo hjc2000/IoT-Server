@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using System.Text;
 using WebServerLib;
 
-//new MQTTClient();
+new MQTTClient();
 var options = new WebApplicationOptions()
 {
     ContentRootPath = "C:\\Users\\huang\\source\\repos\\WpfApp2\\BlazorApp1\\bin\\Release\\net6.0\\browser-wasm\\publish\\wwwroot",
@@ -78,16 +78,22 @@ app.Use(async (context, next) =>
     }
     await next();
 });
+
+//文件content-type提供者
 var provider = new FileExtensionContentTypeProvider();
+/// <summary>
+/// 添加mime表的内容。如果不添加，provider 的默认mime表内没有dll等文件的
+/// content-type，会造成浏览器接收文件后以错误的方式处理
+/// </summary>
 provider.Mappings[".dll"] = "application/octet-stream";
 provider.Mappings[".dat"] = "application/octet-stream";
 provider.Mappings[".blat"] = "application/octet-stream";
-app.UseDefaultFiles();
+app.UseDefaultFiles();//使用默认文件中间件
 app.UseStaticFiles(new StaticFileOptions
 {
-    ContentTypeProvider = provider,
-    ServeUnknownFileTypes = true,
-    DefaultContentType = "application/octet-stream",
+    ContentTypeProvider = provider,//文件content-type提供者
+    ServeUnknownFileTypes = true,//对未知类型的文件提供服务
+    DefaultContentType = "application/octet-stream",//未知的文件类型的content-type
 });
 app.Run();
 

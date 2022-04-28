@@ -1,9 +1,16 @@
 ﻿h1
 {
-    color: red;
+    color: blue;
 }
 
-div
-{
-    color: pink;
+table, th, tr, td {
+    margin-top: 1em;
+    border: 2px;
+    border-color: blue;
+    border-style: solid;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    text-align:center;
 }
+
+

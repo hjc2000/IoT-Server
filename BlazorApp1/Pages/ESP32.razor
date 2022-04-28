@@ -5,9 +5,22 @@
 <h1>ESP32</h1>
 <p>传感器温度：@_temperature</p>
 <button @onclick="Publish">LED开关</button>
-<table>
-</table>
-
+<div>
+	<table>
+		<tr>
+			<th>姓名</th><th>年龄</th>
+		</tr>
+		@foreach(var per in _perList)
+		{
+			<tr @onclick="@(async void ()=>
+			{
+				OutputClick(per);
+			})">
+				<td>@per.Name</td><td>@per.Age</td>
+			</tr>
+		}
+	</table>
+</div>
 @code
 {
 	double _temperature = 0;
@@ -58,5 +71,26 @@
 		}
 	}
 
+	class Person
+	{
+		public string Name { get; set; } = "佚名";
+		public int Age { get; set; } = 0;
+	}
 
+	List<Person> _perList = new List<Person>()
+	{
+		new Person()
+		{
+			Name="张三",
+			Age=15,
+		},
+		new Person(),
+		new Person(),
+	};
+
+	void OutputClick(Person person)
+	{
+		person.Age++;
+		_perList.Add(new Person());
+	}
 }
