@@ -12,18 +12,18 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "http://192.168.31.186:7235;https://192.168.31.186:5284;http://127.0.0.1:80;",
+      "applicationUrl": "http://192.168.31.186:7235;http://127.0.0.1:80;",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_CONTENTROOT": "D:/my_files/workspace/前端/CLI/vue_test/dist",
-        "ASPNETCORE_WEBROOT": "D:/my_files/workspace/前端/CLI/vue_test/dist"
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "ASPNETCORE_CONTENTROOT": "C:\\Users\\huang\\source\\repos\\WpfApp2\\BlazorApp1\\bin\\Release\\net6.0\\browser-wasm\\publish\\wwwroot",
+        "ASPNETCORE_WEBROOT": "C:\\Users\\huang\\source\\repos\\WpfApp2\\BlazorApp1\\bin\\Release\\net6.0\\browser-wasm\\publish\\wwwroot"
       }
     },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Production"
       }
     }
   }
