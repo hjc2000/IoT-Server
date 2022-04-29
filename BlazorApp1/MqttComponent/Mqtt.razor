@@ -37,27 +37,30 @@
 	[JSInvokable]
 	public async void OnInstalled()
 	{
-		_mqtt = await module.InvokeAsync<IJSObjectReference>("getMqtt",_dotnetHelper,Options._username,Options._password);
+		if(module is not null)
+			_mqtt = await module.InvokeAsync<IJSObjectReference>("getMqtt",_dotnetHelper,Options._username,Options._password);
 
 	}
 	//提供给父组件的方法
 	public async void Publish(string topic,byte[] payload)
 	{
-		await _mqtt.InvokeVoidAsync("publish", topic, payload);
+		if(_mqtt is not null)
+			await _mqtt.InvokeVoidAsync("publish", topic, payload);
 	}
 	public async void Subscribe(string topic)
 	{
-		await _mqtt.InvokeVoidAsync("subscribe", topic);
+		if(_mqtt is not null)
+			await _mqtt.InvokeVoidAsync("subscribe", topic);
 	}
 
 	IJSObjectReference? module;
 	IJSObjectReference? _mqtt;
-	DotNetObjectReference<Mqtt> _dotnetHelper;
+	DotNetObjectReference<Mqtt>? _dotnetHelper;
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
-			module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/Mqtt.razor.js");
+			module = await JS.InvokeAsync<IJSObjectReference>("import", "./MqttComponent/Mqtt.razor.js");
 			_dotnetHelper = DotNetObjectReference.Create(this);
 			await module.InvokeVoidAsync("installMqtt",_dotnetHelper);
 		}
