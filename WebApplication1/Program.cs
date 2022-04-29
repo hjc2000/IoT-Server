@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.StaticFiles;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using WebServerLib;
 
@@ -13,8 +15,16 @@ var options = new WebApplicationOptions()
 WebApplicationBuilder builder = WebApplication.CreateBuilder(options);
 WebApplication app = builder.Build();
 app.Urls.Clear();
-app.Urls.Add("http://192.168.31.186:7235");
 app.Urls.Add("http://127.0.0.1:80");
+foreach (var ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
+{
+    // 下面的判断过滤 IP v4 地址
+    if (ip.AddressFamily == AddressFamily.InterNetwork)
+    {
+        string locallIp = ip.ToString();
+        app.Urls.Add(string.Format("http://{0}:7235", locallIp));
+    }
+}
 app.UseWebSockets();
 app.UseRouting();//使用路由中间件
 app.Map("/ws", async (HttpContext context) =>
@@ -63,13 +73,11 @@ app.MapPost("/mqtt/acl", (HttpContext context) =>
     //MQTT客户端 Pub 和 Sub 认证
     context.Response.StatusCode = 200;//不做过多认证，始终允许
 });
-/// <summary>
-/// 将非文件请求重定向到根路径，通过含有点号来判断是一个文件。注意，必须
-/// 放到文件中间件前面，紧挨着，否则会让路由中间件失效
-/// 
-/// 为什么要重定向？因为web选择了一个路由的路径后刷新页面，会导致浏览器直接从
-/// 路由路径向服务器请求，而这里没有任何东西，会导致返回404
-/// </summary>
+/**将非文件请求重定向到根路径，通过含有点号来判断是一个文件。注意，必须
+ * 放到文件中间件前面，紧挨着，否则会让路由中间件失效
+ * 为什么要重定向？因为web选择了一个路由的路径后刷新页面，会导致浏览器直接从
+ * 路由路径向服务器请求，而这里没有任何东西，会导致返回404
+ */
 app.Use(async (context, next) =>
 {
     if (!context.Request.Path.ToString().Contains("."))
@@ -78,13 +86,11 @@ app.Use(async (context, next) =>
     }
     await next();
 });
-
 //文件content-type提供者
 var provider = new FileExtensionContentTypeProvider();
-/// <summary>
-/// 添加mime表的内容。如果不添加，provider 的默认mime表内没有dll等文件的
-/// content-type，会造成浏览器接收文件后以错误的方式处理
-/// </summary>
+/**添加mime表的内容。如果不添加，provider 的默认mime表内没有dll等文件的
+ * content-type，会造成浏览器接收文件后以错误的方式处理
+ */
 provider.Mappings[".dll"] = "application/octet-stream";
 provider.Mappings[".dat"] = "application/octet-stream";
 provider.Mappings[".blat"] = "application/octet-stream";
@@ -96,6 +102,3 @@ app.UseStaticFiles(new StaticFileOptions
     DefaultContentType = "application/octet-stream",//未知的文件类型的content-type
 });
 app.Run();
-
-
-

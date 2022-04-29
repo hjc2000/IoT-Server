@@ -1,6 +1,5 @@
 ﻿@page "/esp32"
 @inject IJSRuntime JS
-@inject NavigationManager NavigationManager
 
 <h1>ESP32</h1>
 <p>传感器温度：@_temperature</p>
@@ -33,7 +32,6 @@
 		set
 		{
 			_temperature = value;
-			Console.WriteLine("被设置了" + value);
 			StateHasChanged();
 		}
 	}
@@ -52,23 +50,19 @@
 	{
 		if (firstRender)
 		{
-			_esp32List.Add(this);
-			await Task.Delay(1000);
+			//module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/ESP32.razor.js");
 			module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/ESP32.razor.js");
-			_mqtt = await module.InvokeAsync<IJSObjectReference>("getMqtt");
+			var dotnetHelper = DotNetObjectReference.Create(this);
+			_mqtt = await module.InvokeAsync<IJSObjectReference>("getMqtt",dotnetHelper);
 		}
 	}
 
-	static List<ESP32> _esp32List = new List<ESP32>();
 
 	[JSInvokable]
-	public static void GetJsData(byte[] arr)
+	public void GetJsData(byte[] arr)
 	{
 		double temp = BitConverter.ToDouble(arr, 0);
-		foreach (ESP32 esp in _esp32List)
-		{
-			esp.Temprature = temp;
-		}
+		Temprature = temp;
 	}
 
 	class Person
