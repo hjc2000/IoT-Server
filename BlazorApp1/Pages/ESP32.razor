@@ -1,9 +1,19 @@
 ﻿@page "/esp32"
 @inject IJSRuntime JS
+@using BlazorApp1.MqttComponent
+@using static BlazorApp1.MqttComponent.Mqtt
+
+
+<Mqtt Options="@_options" @ref="_mqtt"
+OnConnectedCallback="@(()=>
+{
+	_mqtt?.Subscribe("esp32/temperature");
+})"
+OnReceivedCallback="OnReceive"></Mqtt>
 
 <h1>ESP32</h1>
 <p>传感器温度：@_temperature</p>
-<button @onclick="Publish">LED开关</button>
+<button @onclick="ToggleLed">LED开关</button>
 <div>
 	<table>
 		<tr>
@@ -20,8 +30,18 @@
 		}
 	</table>
 </div>
+
 @code
 {
+	Mqtt? _mqtt;
+
+	MqttOptions _options = new MqttOptions()
+	{
+		_username = "hjc",
+		_password = "123",
+	};
+
+
 	double _temperature = 0;
 	public double Temprature
 	{
@@ -36,34 +56,40 @@
 		}
 	}
 
-	async void Publish()
+	void ToggleLed()
 	{
-		if (_mqtt is not null)
+		_mqtt?.Publish("esp32/command/msp", new byte[] { 1 });
+	}
+
+	void OnReceive(Msg msg)
+	{
+		try
 		{
-			await _mqtt.InvokeVoidAsync("publish", "esp32/command/msp", new byte[] { 1 });
+			/**
+			 * 可能会发生数组索引溢出异常，所以设置了try
+			 */
+			string[] subTopics=msg._topic.Split(new char[]{'/'});
+			int index=0;
+			if(subTopics[index++]=="esp32")
+			{
+				switch(subTopics[index++])
+				{
+					case "temperature":
+						{
+							double temp = BitConverter.ToDouble(msg._payload, 0);
+							Temprature=temp;
+							break;
+						}
+				}
+			}
+
+		}
+		catch
+		{
+			
 		}
 	}
 
-	IJSObjectReference? module;
-	IJSObjectReference? _mqtt;
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
-			//module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/ESP32.razor.js");
-			module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/ESP32.razor.js");
-			var dotnetHelper = DotNetObjectReference.Create(this);
-			_mqtt = await module.InvokeAsync<IJSObjectReference>("getMqtt",dotnetHelper);
-		}
-	}
-
-
-	[JSInvokable]
-	public void GetJsData(byte[] arr)
-	{
-		double temp = BitConverter.ToDouble(arr, 0);
-		Temprature = temp;
-	}
 
 	class Person
 	{

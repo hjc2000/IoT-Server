@@ -1,32 +1,6 @@
 ﻿@page "/"
-@using BlazorApp1.MqttComponent
-@using static BlazorApp1.MqttComponent.Mqtt
-@inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 
 <PageTitle>Index</PageTitle>
 <Login></Login>
-<Mqtt Options="@_options" @ref="_mqtt"
-OnConnectedCallback="@(()=>
-{
-	Console.WriteLine("已连接");
-	_mqtt?.Subscribe("esp32/temperature");
-})"
-OnReceivedCallback="@((msg)=>
-{
-	double temp = BitConverter.ToDouble(msg._payload, 0);
-	Console.WriteLine(temp);
-})"></Mqtt>
-
-@code
-{
-	MqttOptions _options = new MqttOptions()
-		{
-			_username = "hjc",
-			_password = "123",
-		};
-
-	Mqtt? _mqtt;
-
-	
-}
+<ESP32></ESP32>
