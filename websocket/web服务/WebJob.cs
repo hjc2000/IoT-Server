@@ -36,14 +36,6 @@ namespace myIoTServer
         /// </summary>
         static void GetAllDevice(WebSocketHandler handler)
         {
-            DataBase database = new DataBase();
-            SqlDataReader sqlDataReader = database.GetReader(@"SELECT * FROM 基本信息");
-            while (sqlDataReader.Read())
-            {
-                string strToWeb = string.Format("设备信息 {0},{1},{2}", sqlDataReader["设备名称"], (int)sqlDataReader["ID"], (bool)sqlDataReader["在线状态"]);
-                handler.SendDataToWebSocket(strToWeb, true);
-            }
-            sqlDataReader.Close();
         }
 
         /// <summary>

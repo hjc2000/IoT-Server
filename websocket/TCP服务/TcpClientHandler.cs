@@ -62,71 +62,9 @@ namespace myIoTServer
                 catch { }//如果字典中不存在该值会引起异常
                 _handlerDir.Add(_clientID, this);
                 _idHasBeenSet = true;
-                if (_nameHasBeenSet)//名称和ID都获取完毕就可以更新数据库了
-                {
-                    Update_DataBase_And_Broadcast_To_Web(true);
-                }
             }
         }
 
-        string _clientName = "";
-        bool _nameHasBeenSet = false;
-        /// <summary>
-        /// 物联网设备的名称
-        /// </summary>
-        public string ClientName
-        {
-            get { return _clientName; }
-            set
-            {
-                _clientName = value;
-                _nameHasBeenSet = true;
-                if (_idHasBeenSet)//名称和ID都获取完毕就可以更新数据库了
-                {
-                    Update_DataBase_And_Broadcast_To_Web(true);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 在物联网设备上线和离线时更新数据库并对所有网页广播
-        /// </summary>
-        /// <param name="isOnline"></param>
-        /// <param name="id"></param>
-        /// <param name="name"></param>
-        void Update_DataBase_And_Broadcast_To_Web(bool isOnline)
-        {
-            if (isOnline)
-            {
-                //设备上线
-                string cmdStr = string.Format(@"UPDATE 基本信息 SET 在线状态 = 1,设备名称='{0}' WHERE ID={1}", _clientName, _clientID);
-                DataBase database = new DataBase();
-                if (database.ExecuteCmdNonQuery(cmdStr) == 0)
-                {
-                    //受影响的行数为0，说明这是一个新设备，将该设备的信息添加到数据库
-                    cmdStr = string.Format(@"INSERT INTO 基本信息 VALUES('{0}',{1},1)", _clientName, _clientID);
-                    database.ExecuteCmdNonQuery(cmdStr);
-
-                    string broadcastString = string.Format(@"设备上线 新设备,{0},{1}", _clientName, _clientID);
-                    WebSocketHandler.Broadcast(broadcastString, true);
-                }
-                else
-                {
-                    //旧设备
-                    string broadcastString = string.Format(@"设备上线 旧设备,{0}", _clientID);
-                    WebSocketHandler.Broadcast(broadcastString, true);
-                }
-            }
-            else
-            {
-                string cmdStr = string.Format(@"UPDATE 基本信息 SET 在线状态 = 0 WHERE ID={0}", ClientID);
-                DataBase database = new DataBase();
-                database.ExecuteCmdNonQuery(cmdStr);
-                //告诉web设备已离线
-                string strToWeb = @"设备断线 " + ClientID;
-                WebSocketHandler.Broadcast(strToWeb, true);
-            }
-        }
 
         /// <summary>
         /// 用来储存这个类的对象，键是UInt64类型的，储存着是设备ID，对应着与该
@@ -208,7 +146,6 @@ namespace myIoTServer
                 _networkStream.Close();
                 _networkStream.Dispose();
                 Console.WriteLine("TCP客户端断线");
-                Update_DataBase_And_Broadcast_To_Web(false);
                 //将自己从字典中删除
                 _handlerDir.Remove(ClientID);
             }

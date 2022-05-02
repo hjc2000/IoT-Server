@@ -18,9 +18,6 @@ namespace myIoTServer
             new AcceptRegister(ip, 8848);
             new MyTcpServer(ip, 8848);
 
-            //服务器启动时将所有数据库中的设备的在线状态设置为0
-            new DataBase().GetCmd(@"UPDATE 基本信息 SET 在线状态 = 0").ExecuteNonQuery();
-
             //启动MQTT服务
 
         }

@@ -77,8 +77,6 @@ namespace myIoTServer
             byte id = tcpReceiveData[offset++];
             handler.ClientID = id;
             string name = Encoding.UTF8.GetString(tcpReceiveData, offset, tcpReceiveData.Length - offset);
-            handler.ClientName=name;
-
             Console.WriteLine("name={0} ID={1}", name, id);
         }
 

@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.StaticFiles;
+using System.Data.SqlClient;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using WebServerLib;
 
-new MQTTClient();
+new ServerMqttClient();
+//设置服务器的文件系统根路径
 var options = new WebApplicationOptions()
 {
     ContentRootPath = "C:\\Users\\huang\\source\\repos\\WpfApp2\\BlazorApp1\\bin\\Release\\net6.0\\browser-wasm\\publish\\wwwroot",
@@ -18,7 +21,7 @@ app.Urls.Clear();
 app.Urls.Add("http://127.0.0.1:80");
 foreach (var ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
 {
-    // 下面的判断过滤 IP v4 地址
+    // 下面的判断过滤 IPv4 地址
     if (ip.AddressFamily == AddressFamily.InterNetwork)
     {
         string locallIp = ip.ToString();
@@ -65,8 +68,37 @@ app.MapPost("/mqtt/auth", async (HttpContext context) =>
      byte[] body = new byte[length];
      await context.Request.Body.ReadAsync(body, 0, body.Length);
      string str = Encoding.UTF8.GetString(body);
-     Console.WriteLine(str);
-     context.Response.StatusCode = 200;
+     MqttAuthentication? au = JsonSerializer.Deserialize<MqttAuthentication>(str,new JsonSerializerOptions()
+     {
+         PropertyNameCaseInsensitive = true,//反序列化不区分大小写
+     });
+     if (au != null)
+     {
+         if(au.Username=="server" && au.IP=="127.0.0.1")
+         {
+             //HTTP服务器特殊认证通道
+             context.Response.StatusCode = 200;
+         }
+         else
+         {
+             //其他客户端认证通道
+             string selection = string.Format("SELECT * FROM [user] WHERE [username]='{0}';", au.Username);
+             using(SqlDataReader reader = DataBase.GetReader(selection))
+             {
+                 if (reader.Read())
+                 {
+                     //找到该用户名
+                     if (au.Password == reader["password"] as string)
+                     {
+                         //检查密码正确
+                         context.Response.StatusCode = 200;
+                         return;
+                     }
+                 }
+             }
+             context.Response.StatusCode = 404;
+         }
+     }
  });
 app.MapPost("/mqtt/acl", (HttpContext context) =>
 {

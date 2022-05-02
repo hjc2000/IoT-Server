@@ -79,7 +79,6 @@
     <Compile Include="web服务\HttpRequestHandler.cs" />
     <Compile Include="web服务\WebJob.cs" />
     <Compile Include="web服务\WebSocketHandler.cs" />
-    <Compile Include="UDP服务\DataBase.cs" />
     <Compile Include="web服务\MyWebServer.cs" />
     <Compile Include="UDP服务\MyString.cs" />
     <Compile Include="TCP服务\MyTcpServer.cs" />
