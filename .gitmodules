@@ -1,6 +1,3 @@
-[submodule "WebApplication1/WebServerLib"]
-	path = WebApplication1/WebServerLib
-	url = https://gitee.com/huang_jin_can/web-server-lib.git
 [submodule "BlazorApp1/MqttComponent"]
 	path = BlazorApp1/MqttComponent
 	url = https://github.com/hjc2000/MqttComponent-Blazor.git
