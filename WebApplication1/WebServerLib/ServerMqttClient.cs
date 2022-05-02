@@ -29,20 +29,15 @@ namespace WebServerLib
             await _client.ConnectAsync(optionBuilder.Build());
         }
         /// <summary>
-        /// 当服务器有多个 MQTT 客户端时，通过这个防止客户端ID 重名
-        /// </summary>
-        static int _count = 0;
-        /// <summary>
         /// 获取默认的连接配置构建器
         /// </summary>
         /// <param name="clientId"></param>
         /// <returns></returns>
         static MqttClientOptionsBuilder GetDefaultOptionBuilder()
         {
-            string client_id = string.Format("server_mqtt_client-{0}", _count++);
             return new MqttClientOptionsBuilder()
                 .WithTcpServer("127.0.0.1", 1883)//连接到本机的MQTT服务器
-                .WithClientId(client_id)//设置客户端ID
+                .WithClientId("server")//设置客户端ID
                 .WithCredentials("server", "");
         }
         /// <summary>

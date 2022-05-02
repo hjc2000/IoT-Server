@@ -5,112 +5,105 @@
 
 
 <Mqtt Options="@_options" @ref="_mqtt"
-OnConnectedCallback="@(()=>
+      OnConnectedCallback="@(()=>
 {
-	_mqtt?.Subscribe("esp32/temperature");
+	_mqtt?.Subscribe("esp32-7C:9E:BD:65:DA:E0/temperature");
 })"
-OnReceivedCallback="OnReceive"></Mqtt>
+      OnReceivedCallback="OnReceive"></Mqtt>
 
 <h1>ESP32</h1>
 <p>传感器温度：@_temperature</p>
 <button @onclick="ToggleLed">LED开关</button>
 <div>
-	<table>
-		<tr>
-			<th>姓名</th><th>年龄</th>
-		</tr>
-		@foreach(var per in _perList)
-		{
-			<tr @onclick="@(async void ()=>
+    <table>
+        <tr>
+            <th>姓名</th>
+            <th>年龄</th>
+        </tr>
+        @foreach (var per in _perList)
+        {
+            <tr @onclick="@(async void ()=>
 			{
 				OutputClick(per);
 			})">
-				<td>@per.Name</td><td>@per.Age</td>
-			</tr>
-		}
-	</table>
+                <td>@per.Name</td>
+                <td>@per.Age</td>
+            </tr>
+        }
+    </table>
 </div>
 
 @code
 {
-	Mqtt? _mqtt;
+    Mqtt? _mqtt;
+    MqttOptions _options = new MqttOptions()
+        {
+            _username = "hjc",
+            _password = "12345",
+        };
+    double _temperature = 0;
+    public double Temprature
+    {
+        get
+        {
+            return _temperature;
+        }
+        set
+        {
+            _temperature = value;
+            StateHasChanged();
+        }
+    }
+    void ToggleLed()
+    {
+        _mqtt?.Publish("esp32-7C:9E:BD:65:DA:E0/command/msp", new byte[] { 1 });
+    }
+    void OnReceive(Msg msg)
+    {
+        try
+        {
+            /**
+             * 可能会发生数组索引溢出异常，所以设置了try
+             */
+            string[] subTopics = msg._topic.Split(new char[] { '/' });
+            int index = 0;
+            if (subTopics[index++] == "esp32-7C:9E:BD:65:DA:E0")
+            {
+                switch (subTopics[index++])
+                {
+                case "temperature":
+                    {
+                        double temp = BitConverter.ToDouble(msg._payload, 0);
+                        Temprature = temp;
+                        break;
+                    }
+                }
+            }
 
-	MqttOptions _options = new MqttOptions()
-	{
-		_username = "hjc",
-		_password = "123456",
-	};
+        }
+        catch
+        {
 
-
-	double _temperature = 0;
-	public double Temprature
-	{
-		get
-		{
-			return _temperature;
-		}
-		set
-		{
-			_temperature = value;
-			StateHasChanged();
-		}
-	}
-
-	void ToggleLed()
-	{
-		_mqtt?.Publish("esp32/command/msp", new byte[] { 1 });
-	}
-
-	void OnReceive(Msg msg)
-	{
-		try
-		{
-			/**
-			 * 可能会发生数组索引溢出异常，所以设置了try
-			 */
-			string[] subTopics=msg._topic.Split(new char[]{'/'});
-			int index=0;
-			if(subTopics[index++]=="esp32")
-			{
-				switch(subTopics[index++])
-				{
-					case "temperature":
-						{
-							double temp = BitConverter.ToDouble(msg._payload, 0);
-							Temprature=temp;
-							break;
-						}
-				}
-			}
-
-		}
-		catch
-		{
-			
-		}
-	}
-
-
-	class Person
-	{
-		public string Name { get; set; } = "佚名";
-		public int Age { get; set; } = 0;
-	}
-
-	List<Person> _perList = new List<Person>()
-	{
-		new Person()
-		{
-			Name="张三",
-			Age=15,
-		},
-		new Person(),
-		new Person(),
-	};
-
-	void OutputClick(Person person)
-	{
-		person.Age++;
-		_perList.Add(new Person());
-	}
+        }
+    }
+    class Person
+    {
+        public string Name { get; set; } = "佚名";
+        public int Age { get; set; } = 0;
+    }
+    List<Person> _perList = new List<Person>()
+    {
+        new Person()
+        {
+            Name="张三",
+            Age=15,
+        },
+        new Person(),
+        new Person(),
+    };
+    void OutputClick(Person person)
+    {
+        person.Age++;
+        _perList.Add(new Person());
+    }
 }
