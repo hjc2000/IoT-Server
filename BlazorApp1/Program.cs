@@ -11,4 +11,8 @@ builder.Services.AddScoped(sp => new HttpClient
 	BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
 });
 
+// 增加 BootstrapBlazor 组件
+builder.Services.AddBootstrapBlazor();
+
+
 await builder.Build().RunAsync();
