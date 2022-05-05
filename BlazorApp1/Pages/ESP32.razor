@@ -1,34 +1,40 @@
 ﻿@page "/esp32"
 @inject IJSRuntime JS
+@inject NavigationManager _nav
 @using BlazorApp1.MqttComponent
 @using static BlazorApp1.MqttComponent.Mqtt
 
-
-<Mqtt Options="@_options" @ref="_mqtt"
-      OnConnectedCallback="@(()=>
+<Mqtt @ref="_mqtt"
+OnConnectedCallback="@(()=>
 {
+	Console.WriteLine("连接成功");
 	_mqtt?.Subscribe("esp32-7C:9E:BD:65:DA:E0/temperature");
 })"
-      OnReceivedCallback="OnReceive"></Mqtt>
+OnReceivedCallback="OnReceive"
+OnConnectFailCallback="@(()=>
+{
+	Console.WriteLine("连接失败");
+})"
+/>
 
 <h1>ESP32</h1>
 <p>传感器温度：@_temperature</p>
 <button @onclick="ToggleLed">LED开关</button>
 <div>
-    <table>
-        <tr>
-            <th>姓名</th>
-            <th>年龄</th>
-        </tr>
-        @foreach (var per in _perList)
-        {
-            <tr @onclick="@(async void ()=>
+	<table>
+		<tr>
+			<th>姓名</th>
+			<th>年龄</th>
+		</tr>
+		@foreach (var per in _perList)
+		{
+			<tr @onclick="@(async void ()=>
 			{
 				OutputClick(per);
 			})">
-                <td>@per.Name</td>
-                <td>@per.Age</td>
-            </tr>
-        }
-    </table>
+				<td>@per.Name</td>
+				<td>@per.Age</td>
+			</tr>
+		}
+	</table>
 </div>

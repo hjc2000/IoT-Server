@@ -1,8 +1,41 @@
 ﻿@page "/login"
+@inject NavigationManager _nav
+
+<Mqtt @ref="_mqtt"
+OnConnectedCallback="OnConnect"
+OnConnectFailCallback="@(async ()=>
+{
+    await Task.Run(() =>
+    {
+        //等待，直到组件加载完成 _msgbox 不为空
+        while (_msgbox == null) { }
+        _msgbox.Message = "用户名或密码错误";
+
+    });
+})"
+/>
+
+<MsgBox @ref="_msgbox"></MsgBox>
 
 <h3>Login</h3>
+<table>
+    <tr>
+        <td>用户名：</td>
+        <td><input @bind="_username" type=text /></td>
+    </tr>
+    <tr>
+        <td>密码：</td>
+        <td><input @bind="_password" type="password" /></td>
+    </tr>
+    <tr>
+        <td>
+            <button @onclick="LoginButton">登录</button>
+        </td>
+    </tr>
+</table>
+
 
 @code
 {
-
+    MsgBox? _msgbox;
 }

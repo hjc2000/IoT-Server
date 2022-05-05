@@ -1,0 +1,32 @@
+﻿
+@if(_showMsg)
+{
+    <div id="msgbox">
+        @_msg
+    </div>
+}
+
+@code
+{
+    bool _showMsg = false;
+    string _msg = "";
+    public string Message
+    {
+        get
+        {
+            return _msg;
+        }
+        set
+        {
+            _msg = value;
+            _showMsg = true;
+            Task.Run(async () =>
+            {
+                await Task.Delay(3000);//等待3秒后关闭消息弹窗
+                _showMsg = false;
+                StateHasChanged();
+            });
+            StateHasChanged();
+        }
+    }
+}
