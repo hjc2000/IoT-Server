@@ -38,8 +38,10 @@ namespace WebServerLib
             return new MqttClientOptionsBuilder()
                 .WithTcpServer("127.0.0.1", 1883)//连接到本机的MQTT服务器
                 .WithClientId("server")//设置客户端ID
-                .WithCredentials("server", "");
+                .WithCredentials("server", _password);
         }
+        //随机生成密码
+        public static string _password = Guid.NewGuid().ToString();
         /// <summary>
         /// 使用事件钩子
         /// </summary>
@@ -54,7 +56,6 @@ namespace WebServerLib
             _client.UseApplicationMessageReceivedHandler(void (e) =>
             {
                 var msg = e.ApplicationMessage;
-                MqttMsgHandler.Handle(this, msg.Topic, msg.Payload);
             });
         }
         /// <summary>

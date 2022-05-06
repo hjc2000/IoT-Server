@@ -8,7 +8,6 @@ using System.Text;
 using System.Text.Json;
 using WebServerLib;
 
-new ServerMqttClient();
 //设置服务器的文件系统根路径
 var options = new WebApplicationOptions()
 {
@@ -75,26 +74,18 @@ app.MapPost("/mqtt/auth", async (HttpContext context) =>
 	 int statueCode = 404;
 	 if (au != null)
 	 {
-		 if (au.Username == "server" && au.IP == "127.0.0.1")
+		 //其他客户端认证通道
+		 string selection = string.Format("SELECT * FROM [user] WHERE [username]='{0}';", au.Username);
+		 using (SqlDataReader reader = DataBase.GetReader(selection))
 		 {
-			 //HTTP服务器特殊认证通道
-			 statueCode = 200;
-		 }
-		 else
-		 {
-			 //其他客户端认证通道
-			 string selection = string.Format("SELECT * FROM [user] WHERE [username]='{0}';", au.Username);
-			 using (SqlDataReader reader = DataBase.GetReader(selection))
+			 if (reader.Read())
 			 {
-				 if (reader.Read())
+				 //找到该用户名
+				 if (au.Password == reader["password"] as string)
 				 {
-					 //找到该用户名
-					 if (au.Password == reader["password"] as string)
-					 {
-						 Console.WriteLine("密码是：" + au.Password);
-						 //检查密码正确
-						 statueCode = 200;
-					 }
+					 Console.WriteLine("密码是：" + au.Password);
+					 //检查密码正确
+					 statueCode = 200;
 				 }
 			 }
 		 }

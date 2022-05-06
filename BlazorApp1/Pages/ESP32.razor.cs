@@ -1,4 +1,5 @@
 ﻿using BlazorApp1.MqttComponent;
+using Microsoft.AspNetCore.Components;
 using static BlazorApp1.MqttComponent.Mqtt;
 
 namespace BlazorApp1.Pages
@@ -10,25 +11,32 @@ namespace BlazorApp1.Pages
 		{
 			if (firstRender)
 			{
-				await Task.Run(() =>
+				while (_mqtt == null)
 				{
-					while (_mqtt == null) { }
-					_mqtt?.TryConnect();
-
-				});
+					await Task.Delay(1000);
+				}
+				_mqtt.TryConnect();
 			}
 
 		}
 
+		/*如果该页面不是使用程序跳转过来的，而是用户直接访问 URL 过来的
+		 * 就重定向到 Login 页面*/
+		[Inject]
+		NavigationManager? Nav { get; set; }
 		public static bool _esp32Initialized = false;
-		protected override void OnInitialized()
+		protected override async Task OnInitializedAsync()
 		{
 			/*用户在该页面刷新后，会导致界面仍然停留在该页面，但是内存中的
 			 所有数据都消失了，静态变量也恢复成初始值了。这个时候要重定向
 			到登录页面重新登录*/
 			if(!_esp32Initialized)
 			{
-				_nav.NavigateTo("/");
+				while (Nav == null)
+				{
+					await Task.Delay(100);
+				}
+				Nav.NavigateTo("/");
 			}
 		}
 
@@ -45,10 +53,12 @@ namespace BlazorApp1.Pages
 				StateHasChanged();
 			}
 		}
+
 		void ToggleLed()
 		{
 			_mqtt?.Publish("esp32-7C:9E:BD:65:DA:E0/command/msp", new byte[] { 1 });
 		}
+
 		void OnReceive(Msg msg)
 		{
 			try
