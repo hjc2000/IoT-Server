@@ -1,5 +1,12 @@
-﻿#msgbox
-{
-	float: right;
-	background-color:pink;
+﻿#msgbox {
+	position: fixed;
+	top: 40px;
+	left:auto;
+	right: auto;
+	background-color: pink;
+	padding: 10px;
+	border: solid;
+	border-width: 10px;
+	border-radius: 20px;
+	border-color: yellow;
 }

@@ -1,16 +1,44 @@
-﻿h1
-{
-    color: blue;
+﻿#mainbox {
+	display: flex;
+	justify-content: space-between;
 }
 
-table, th, tr, td {
-    margin-top: 1em;
-    border: 2px;
-    border-color: blue;
-    border-style: solid;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    text-align:center;
+h1 {
+	color: blue;
+	font-size: 20px;
 }
 
+.imgButton {
+	width: 90px;
+	height: 40px;
+	border-radius: 40px;
+}
 
+table {
+	align-self: start;
+}
+
+.lightbox {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 50px;
+	height: 50px;
+	border: solid;
+	border-width: 2px;
+}
+
+.offlineLight {
+	height: 40px;
+	width: 40px;
+	border-radius: 20px;
+	background-color: gray;
+}
+
+.onlineLight {
+	height: 40px;
+	width: 40px;
+	border-radius: 20px;
+	background-color: lawngreen;
+}

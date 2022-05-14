@@ -1,40 +1,23 @@
 ﻿@page "/login"
 
-<Mqtt @ref="_mqtt"
-OnConnectedCallback="OnConnect"
-OnConnectFailCallback="@(async ()=>
-{
-    //等待，直到组件加载完成 _msgbox 不为空
-    while (_msgbox == null)
-    {
-        await Task.Delay(100);
-    }
-    _msgbox.Message = "用户名或密码错误";
-})"
-/>
 
-<MsgBox @ref="_msgbox"></MsgBox>
+<div>
+	<MsgBox @ref="_msgbox"></MsgBox>
 
-<h3>Login</h3>
-<table>
-    <tr>
-        <td>用户名：</td>
-        <td><input @bind="_username" type=text /></td>
-    </tr>
-    <tr>
-        <td>密码：</td>
-        <td><input @bind="_password" type="password" /></td>
-    </tr>
-    <tr>
-        <td>
-            <button @onclick="LoginButton">登录</button>
-        </td>
-    </tr>
-</table>
-
-<button @onclick="TestButton">测试</button>
-
-@code
-{
-    MsgBox? _msgbox;
-}
+	<table>
+		<caption>登录</caption>
+		<tr>
+			<td>用户名：</td>
+			<td><input @bind="Username" type=text /></td>
+		</tr>
+		<tr>
+			<td>密码：</td>
+			<td><input @bind="Password" type="password" /></td>
+		</tr>
+		<tr>
+			<td colspan=2>
+				<button @onclick="LoginButton">登录</button>
+			</td>
+		</tr>
+	</table>
+</div>

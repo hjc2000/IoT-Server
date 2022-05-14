@@ -1,0 +1,27 @@
+﻿.mainbox {
+	text-align:center;
+	width:stretch;
+	margin-left:10px;
+	margin-right:10px;
+}
+
+.box {
+	text-align: left;
+	width: stretch;
+	border: solid;
+	border-width: 10px;
+	border-color: mediumpurple;
+	border-radius: 20px;
+	padding: 10px;
+	margin-bottom: 10px;
+	background-color: white;
+}
+
+h1 {
+	text-align: center;
+	font-weight:bold;
+	color: black;
+	font-size: 30px;
+	margin-bottom:20px;
+	margin-top:10px;
+}

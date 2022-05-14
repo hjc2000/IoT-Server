@@ -3,37 +3,36 @@
 @using BlazorApp1.MqttComponent
 @using static BlazorApp1.MqttComponent.Mqtt
 
+<MsgBox @ref="_msgbox"></MsgBox>
 <Mqtt @ref="_mqtt"
-OnConnectedCallback="@(()=>
+	  OnConnectedCallback="@(()=>
 {
 	Console.WriteLine("连接成功");
-	_mqtt?.Subscribe("esp32-7C:9E:BD:65:DA:E0/temperature");
+	Subscribe();
+	Publish("read_LED_state",null);
+	Publish("get_online_state",null);
 })"
-OnReceivedCallback="OnReceive"
-OnConnectFailCallback="@(()=>
+	  OnReceivedCallback="OnReceive"
+	  OnConnectFailCallback="@(()=>
 {
 	Console.WriteLine("连接失败");
-})"
-/>
+})" />
 
-<h1>ESP32</h1>
-<p>传感器温度：@_temperature</p>
-<button @onclick="ToggleLed">LED开关</button>
-<div>
+<div id=mainbox>
+	<div>
+		<h1>@ClientId</h1>
+		<p>传感器温度：@_temperature</p>
+		<p>来自控制器：@Log</p>
+		<img @onclick="OnButtonClick" class="imgButton" src=@ImgUrl />
+	</div>
 	<table>
 		<tr>
-			<th>姓名</th>
-			<th>年龄</th>
+			<td>在线状态指示灯：</td>
+			<td>
+				<div class=lightbox>
+					<div class=@LightClass></div>
+				</div>
+			</td>
 		</tr>
-		@foreach (var per in _perList)
-		{
-			<tr @onclick="@(async void ()=>
-			{
-				OutputClick(per);
-			})">
-				<td>@per.Name</td>
-				<td>@per.Age</td>
-			</tr>
-		}
 	</table>
 </div>

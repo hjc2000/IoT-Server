@@ -1,6 +1,37 @@
-﻿tr, td {
-    height:3em;
-    vertical-align:central;
-    margin-top: 1em;
+﻿.clearfix::before, .clearfix::after {
+	content: '';
+	display: table;
+	clear: both;
 }
 
+div {
+	margin-top: 150px;
+	margin-left: auto;
+	margin-right: auto;
+	width: fit-content; /*使块尽可能向内收缩，直到刚好被内容撑开*/
+	border: solid;
+	border-radius: 20px;
+	border-width:10px;
+	border-color:mediumpurple;
+	padding: 20px;
+	background-color: white;
+}
+
+table {
+	margin-left: auto;
+	margin-right: auto;
+	caption-side: top;
+}
+
+caption {
+	text-align: center;
+	color: blue;
+	font-size: 24px;
+}
+
+tr, td {
+	height: 3em;
+	vertical-align: central;
+	margin-top: 1em;
+	text-align: center;
+}

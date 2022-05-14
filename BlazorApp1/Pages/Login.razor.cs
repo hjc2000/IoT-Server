@@ -1,5 +1,6 @@
 ﻿using BlazorApp1.MqttComponent;
 using Microsoft.AspNetCore.Components;
+using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
 using static BlazorApp1.MqttComponent.Mqtt;
@@ -8,67 +9,89 @@ namespace BlazorApp1.Pages
 {
 	public partial class Login
 	{
-		string _password = "";
-		string _username = "";
+		//和输入框绑定的属性
 		public string Password
 		{
-			get { return _password; }
-			set { _password = value; }
+			get { return _userInfo.Password; }
+			set { _userInfo.Password = value; }
 		}
 		public string Username
 		{
-			get { return _username; }
-			set { _username = value; }
-		}
-
-		Mqtt? _mqtt;
-
-		[Inject]
-		NavigationManager? Nav { get; set; }
-
-		//事件处理
-		async void LoginButton()
-		{
-			/*用户点击了之后就设置MQTT组件的默认设置，以后所有实例化的MQTT组件
-			 都使用该设置*/
-			Mqtt.DefaultOptions = new MqttOptions()
-			{
-				Username = _username,
-				Password = _password,
-			};
-			/*组件没加载完成时，_mqtt 可能为 null，等待，直到不为null*/
-			while (_mqtt == null)
-			{
-				await Task.Delay(1000);
-			}
-			_mqtt.TryConnect();
+			get { return _userInfo.Username; }
+			set { _userInfo.Username = value; }
 		}
 		/// <summary>
-		/// MQTT连接成功，表示用户登录成功
+		/// 用于路由
 		/// </summary>
-		async void OnConnect()
+		[Inject]
+		NavigationManager? Nav { get; set; }
+		/// <summary>
+		/// 消息弹窗
+		/// </summary>
+		MsgBox? _msgbox;
+		/// <summary>
+		/// 点击登录按钮后执行得操作
+		/// </summary>
+		async void LoginButton()
 		{
-			ESP32._esp32Initialized = true;
-			while (Nav == null)
+			bool authResult = await LoginAuthAsync();
+			if (authResult)
 			{
-				await Task.Delay(100);
+				//设置MQTT组件的默认设置
+				Mqtt.DefaultOptions = new MqttOptions()
+				{
+					Username = _userInfo.Username,
+					Password = _userInfo.Password,
+				};
+				DeviceList.UserInfomation = _userInfo;//设置用户信息
+				DeviceList.Initialized = true;
+				//跳转到页面
+				while (Nav == null)
+				{
+					await Task.Delay(1000);
+				}
+				Nav.NavigateTo("/DeviceList");
 			}
-			Nav.NavigateTo("esp32");
+			else
+			{
+				while(_msgbox==null)
+				{
+					await Task.Delay(1000);
+				}
+				_msgbox.Message = "登录失败，请检查用户名和密码";
+			}
 		}
-
-	}
-
-	public partial class Login
-    {
-		async void TestButton()
-        {
-			HttpClient client = new HttpClient();
-			string urlString = string.Format(@"http://localhost:8081/api/v4/clients/{0}", "server");
+		/// <summary>
+		/// 用户信息类
+		/// </summary>
+		public class UserInfo
+		{
+			public string Username { get; set; } = string.Empty;
+			public string Password { get; set; } = string.Empty;
+		}
+		/// <summary>
+		/// 用户信息字段
+		/// </summary>
+		UserInfo _userInfo = new UserInfo();
+		/// <summary>
+		/// 发送HTTP请求进行登录验证
+		/// </summary>
+		/// <returns></returns>
+		async Task<bool> LoginAuthAsync()
+		{
+			bool result = false;
+			HttpClient client = new();
+			//string urlString = string.Format(@"{0}getDeviceInfo", Nav.BaseUri);
+			string urlString = @"http://localhost:80";//末尾不需要带斜杠
 			client.BaseAddress = new Uri(urlString);
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",Convert.ToBase64String(Encoding.ASCII.GetBytes("admin:public")));
-            HttpResponseMessage msg = await client.GetAsync(urlString);
-			Console.WriteLine(msg.StatusCode);
+			string json = JsonConvert.SerializeObject(_userInfo);
+			HttpContent content = new StringContent(json);
+			HttpResponseMessage msg = await client.PostAsync("/loginAuth", content);
+			if (msg.StatusCode == System.Net.HttpStatusCode.OK)
+			{
+				result = true;
+			}
+			return result;
 		}
-
 	}
 }

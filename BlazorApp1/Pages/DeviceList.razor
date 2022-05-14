@@ -1,0 +1,11 @@
+﻿@page "/DeviceList"
+
+<div class="mainbox">
+	<h1>设备列表</h1>
+	@foreach (var device in _deviceList)
+	{
+		<div class="box">
+			<ESP32 ClientId="@device"></ESP32>
+		</div>
+	}
+</div>
